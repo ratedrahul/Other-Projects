@@ -1,0 +1,97 @@
+import requests
+import os
+import webbrowser
+import string
+import random
+
+
+#url1 = 'https://prnt.sc/ds45wa'
+#url = 'https://prnt.sc/aa5232'
+import bs4
+# from bs4 import BeautifulSoup
+header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+
+
+
+def link_generater(N = 6):
+
+# initializing size of string 
+
+
+# using random.choices()
+# generating random strings 
+	res = ''.join(random.choices(string.ascii_lowercase +
+							 string.digits, k = N))
+  
+# print result
+	# url = "The generated random string : " + str(res)
+	url = r"https://prnt.sc/" + str(res)
+	return url
+
+
+def image_download():
+	latest_url = link_generater()
+	page = requests.get(latest_url, headers = header)
+	bs = bs4.BeautifulSoup(page.text,"html.parser")
+	list_imgs = bs.find_all('img')
+	no_of_imgs = len(list_imgs)
+	list_as = bs.find_all('a')
+	no_of_as = len(list_as)
+
+	global liss
+	liss = []
+
+	for imgTag in list_imgs:
+		imgLink = imgTag.get('src')
+		liss.append(imgLink)
+	img_url = ''
+	for i in liss:
+		if '.png' in i:
+			if 'logo' not in i:
+				# print('final image bc ',i)
+				# print('i hoga ',i)
+				# if len(i)<50:
+				img_url = i
+				# else:
+					# print('No image')
+					# img_url = i
+					# return 
+		else:
+			pass
+			# print('kya logo')
+	# print('here url is ',img_url)
+	# if 'imgur' not in img_url:
+	# 	print('isme nahi he')
+	# 	return
+	try:
+		response = requests.get(img_url,headers = header)
+		# response = requests.get(img_url)
+# with open('./Image.jpg','wb') as f:
+		with open(img_url[-11:]+'.png','wb') as f:
+			f.write(response.content)
+			# print('size hogi ',(f))
+			f.seek(0, os.SEEK_END)
+			size = f.tell()
+			# print('size ',size)
+			f.close()
+			if size< 7000:
+				# f.flush()
+				# pass
+				print('less size')
+				return
+			# f.close()
+	except Exception as e:
+		# print('error ',e)
+		pass
+
+	# fomatted_text = bs.prettify()
+
+def im(n =100):
+	for x in range(n):
+		# print(x)
+		image_download()
+	files = os.listdir()
+	print(len(files)-2,' pics downloaded ')
+	webbrowser.open(os.getcwd())
+
+im()
